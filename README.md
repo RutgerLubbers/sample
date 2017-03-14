@@ -1,5 +1,14 @@
 # Jetse Java
 
+## Prerequisites
+
+1. JDK (>= 1.8)
+1. Java IDE ([SpringToolSuite](https://spring.io/tools) / [IntelliJ](https://www.jetbrains.com/idea/) / ....)
+1. VirtualBox (>= 5.1.10)
+1. Vagrant (>= 1.9.1)
+
+## Checkout project
+Checkout the project in `/opt/hawaii/workspace`. Do a global search replace to edit paths (most likely only in `vagrant/Vagrantfile`).
 
 ## Project setup
 The project currently has the following subdirectories:
@@ -10,59 +19,60 @@ Used during all development stages (dev/tst/stg/prd).
 - frontend. The GUI of the application (not present)
 - backend. The backend.
 
-The artifactory can be found here:
-
 ## Run the stack
 
-1. Edit `/etc/hosts` add:
+#### 1. Edit `/etc/hosts` add:
 
 ````
      127.0.0.1 jetse-src jetse-tgt
 ````
 
-2. VAGRANT 
+#### 2. VAGRANT 
+##### 2.1. Vagrant NFS
+###### Windows
+For setting up NFS with windows:
+   
+````
+    $ cd /opt/hawaii/workspace/jetse/vagrant
+    $ vagrant plugin install vagrant-winnfsd
+````
+
+###### Linux / Mac
+For disabling the permission prompt for creating NFS mounts, see [NFS](https://www.vagrantup.com/docs/synced-folders/nfs.html). 
+
+Basically:
+    
+````
+    $ sudo mkdir -p /etc/sudoers.d
+````
+Create file `/etc/sudoers.d/vagrant-syncedfolders` with contents:
+
+````
+    Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+    Cmnd_Alias VAGRANT_NFSD = /sbin/nfsd restart
+    Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
+    %admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+````
+
+##### 2.2. Bring up vagrant
+    
 
 ````
     $ cd /opt/hawaii/workspace/jetse/vagrant
     $ vagrant up
 ````
 
-3. BACKEND
+#### 3. BACKEND
 
 ````
     $ cd /opt/hawaii/workspace/jetse/backend
     $ sh gradlew bootRun
 ````
 
-4. LIQUIBASE
+#### 4. LIQUIBASE
 
 ````
     $ cd /opt/hawaii/workspace/jetse/liquibase
     $ sh gradlew update
 ````
 
-5. FRONTEND
-
-Not present.
-
-````
-    $ cd /opt/hawaii/workspace/jetse/frontend
-     
-    (do this regularly)
-    $ npm prune && npm install
-      
-    $ npm start
-````
-
-## Code Style
-For the backend we use the [Hawaii 2.0 code style formatting](https://github.com/hawaiifw/hawaii-framework/blob/master/src/eclipse/hawaii-framework-java-style.xml).
-These code style rules can be imported in IntelliJ or Eclipse. IntelliJ cannot import all settings (unfortunately)
- 
-**Intellij Users:**
-1. Import the formatting style: `Settings → Code Style → Java`, click `Manage`, and import the XML file by simply clicking `Import`.
-2. Verify that the `Editor → Code Style → Right margin (columns)` is set to `140` and that the class count for regular and static `*` imports in `Editor > Code Style > Java > Imports` is set to `9999`.
-
-## Architecture
-The project will use the Hawaii framework (AKA Hawaii 2.0) as a base. All decisions that are taken in this project
-regarding frameworks (such as Spring boot), integration testing (Spring mock MVC) are used until the team together
-decides that there is a good reason to use something else. (most likely this results in a change in hawaii framework).
