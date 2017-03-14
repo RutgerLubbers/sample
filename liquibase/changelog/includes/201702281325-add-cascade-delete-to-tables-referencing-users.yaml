@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 201702281325
+      author: RCL
+      changes:
+          - dropForeignKeyConstraint:
+              baseTableName: user_roles
+              constraintName: ur_user_id_fk
+          - dropForeignKeyConstraint:
+              baseTableName: user_invitation
+              constraintName: ui_user_id_fk
+          - addForeignKeyConstraint:
+              baseTableName: user_roles
+              constraintName: ur_user_id_fk
+              baseColumnNames: user_id
+              onDelete: CASCADE
+              referencedColumnNames: id
+              referencedTableName: user
+          - addForeignKeyConstraint:
+              baseTableName: user_invitation
+              constraintName: ui_user_id_fk
+              baseColumnNames: user_id
+              onDelete: CASCADE
+              referencedColumnNames: id
+              referencedTableName: user

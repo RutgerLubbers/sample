@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 201702131219
+      author: RCL
+      changes:
+        - addColumn:
+            tableName: user
+            columns:
+              - column:
+                  name: email_confirmed
+                  type: char(5)

@@ -1,0 +1,151 @@
+buildscript {
+    ext {
+        gradleCredentionalsVersion = "1.0.3"
+        springBootVersion = "1.4.2.RELEASE"
+        springLoadedVersion = "1.2.6.RELEASE"
+    }
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url "http://repo.spring.io/plugins-release" }
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://oss.sonatype.org/content/repositories/snapshots" }
+    }
+    dependencies {
+        classpath "nu.studer:gradle-credentials-plugin:${gradleCredentionalsVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "org.springframework:springloaded:${springLoadedVersion}"
+    }
+}
+
+group = "nl.qnh"
+
+
+
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "nu.studer.credentials"
+apply plugin: "maven-publish"
+apply plugin: "org.springframework.boot"
+apply plugin: "pmd"
+apply plugin: "war"
+
+
+ext {
+    hawaiiVersion  = "2.0.0.M1"
+    javaVersion    = "1.8"
+    pmdToolVersion = "5.5.3"
+    javaxMailVersion = "1.4.7"
+    commonsCollections = "4.1"
+    user = credentials.qnh_user ?: "no_user_set"
+    pwd = credentials.qnh_pwd ?: "no_password_set"
+}
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+    maven { url "http://repo.spring.io/milestone" }
+    maven { url "http://repo.spring.io/snapshot" }
+    maven { url "http://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+    compile "org.apache.commons:commons-collections4:${commonsCollections}"
+    compile "org.hawaiiframework:hawaii-starter-rest:${hawaiiVersion}"
+    compile "org.springframework.boot:spring-boot-actuator"
+    compile "org.springframework.boot:spring-boot-devtools"
+    compile "org.springframework.boot:spring-boot-starter-aop"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-jdbc"
+//    compile "org.springframework.boot:spring-boot-starter-security"
+//    compile "org.springframework.security.oauth:spring-security-oauth2"
+//    compile "org.springframework.security:spring-security-jwt"
+//    compile "org.springframework.security:spring-security-acl"
+    compile "org.springframework.boot:spring-boot-configuration-processor"
+    runtime "postgresql:postgresql:9.4.1208-jdbc42-atlassian-hosted"
+    compile "javax.mail:mail:${javaxMailVersion}"
+    testCompile "junit:junit"
+    testCompile "org.hawaiiframework:hawaii-starter-test:${hawaiiVersion}"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "org.springframework.security:spring-security-test"
+    testCompile "io.rest-assured:rest-assured:3.0.2"
+}
+
+pmd {
+    ignoreFailures = false
+    consoleOutput = true
+    toolVersion = "${pmdToolVersion}"
+    sourceSets = [sourceSets.main]
+    ruleSetFiles = files("$rootProject.projectDir/pmdRuleSet.xml")
+}
+
+
+tasks.withType(JavaCompile) {
+    options.deprecation = true
+    options.encoding = "UTF-8"
+    // add Xlint to our compiler options.
+    options.compilerArgs << "-Xlint:all"
+}
+
+task myJavadocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+}
+
+
+publishing {
+    publications {
+        jar(MavenPublication) {
+            from components.java
+        }
+        war(MavenPublication) {
+            from components.web
+        }
+    }
+
+    repositories {
+        maven {
+            name = "releases"
+            if (rootProject.version.endsWith("-SNAPSHOT")) {
+                url "http://qah-ci-vm-git01.qnh.local/artifactory/snapshots"
+            } else {
+                url "http://qah-ci-vm-git01.qnh.local/artifactory/releases"
+            }
+            credentials {
+                username = user
+                password = pwd
+            }
+        }
+        maven {
+            name = "libs"
+            if (rootProject.version.endsWith("-SNAPSHOT")) {
+                url "http://qah-ci-vm-git01.qnh.local/artifactory/libs-snapshot-local"
+            } else {
+                url "http://qah-ci-vm-git01.qnh.local/artifactory/libs-release-local"
+            }
+            credentials {
+                username = user
+                password = pwd
+            }
+        }
+    }
+}
+
+
+task wrapper(type: Wrapper) {
+    description = "Generates gradlew[.bat] scripts"
+    gradleVersion = "3.3"
+}
+
+bootRun {
+    systemProperty("spring.profiles.active", System.properties["spring.profiles.active"])
+    if ( project.hasProperty('debugArgs') ) {
+        jvmArgs project.debugArgs.split('\\s+')
+    }
+
+}

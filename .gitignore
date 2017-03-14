@@ -1,0 +1,106 @@
+storage
+.DS_Store
+
+#####
+# IntelliJ
+#
+
+*.iml
+**/.idea
+backend/**/out/
+
+#####
+# Eclipse
+#
+
+**/.settings
+**/.classpath
+**/.project
+backend/**/bin/
+
+
+backend/**config/*.local.properties
+
+#####
+# LOG FILES
+#
+
+**/log/*
+*.log
+
+#####
+# Java
+#
+
+*.class
+
+#####
+# BlueJ files
+#
+
+*.ctxt
+
+#####
+# Mobile Tools for Java (J2ME)
+#
+
+.mtj.tmp/
+
+#####
+# Package Files
+#
+
+*.jar
+*.war
+*.ear
+
+#####
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+#
+
+hs_err_pid*
+
+
+#####
+# Gradle
+#
+
+.gradle
+# Ignore build files from gradle
+build/
+$ BUT include vendors from angular.
+!**/_vendors/**/build/
+
+**/.gradle
+**/gradle.options
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+#####
+# NODE
+#
+
+*npm-debug.log
+node_modules/
+e2e/
+
+#####
+# Emacs cruft
+#
+
+*~
+
+
+######
+# Vagrant
+#
+
+.vagrant
+
+
+######
+# Artifactory
+#
+
+*artifactory-settings.json

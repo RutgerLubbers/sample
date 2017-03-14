@@ -1,0 +1,52 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.liquibase:liquibase-gradle-plugin:1.2.1"
+        classpath "org.postgresql:postgresql:9.4-1201-jdbc41"
+        classpath "org.yaml:snakeyaml:1.17"
+    }
+}
+
+if (!project.hasProperty("env")) {
+    logger.quiet("No env passed in; setting env to 'dev'")
+}
+
+project.ext.env = project.hasProperty("env") ? project.property("env") : "dev"
+
+logger.quiet("Env = ${env}")
+
+switch (env) {
+    case "dev":
+        project.ext["dbUrl"] = "jdbc:postgresql://localhost:7432/jetse"
+        project.ext["dbUsername"] = "jetse"
+        project.ext["dbPassword"] = "jetse"
+        break
+    default:
+        logger.error("Unknown env: ${env}")
+        throw new GradleException()
+}
+
+apply plugin: "org.liquibase.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+liquibase {
+    activities {
+        main {
+            changeLogFile "changelog/db.changelog-master.yaml"
+            url dbUrl
+            username dbUsername
+            password dbPassword
+        }
+    }
+    runList = "main"
+}
+
+task wrapper(type: Wrapper) {
+    description = "Generates gradlew[.bat] scripts"
+    gradleVersion = "3.3"
+}

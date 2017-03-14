@@ -1,0 +1,45 @@
+version: 1
+
+dn: dc=qnh,dc=nl
+objectClass: top
+objectClass: organization
+objectClass: dcObject
+dc: qnh
+o: qnh
+
+dn: ou=groups,dc=qnh,dc=nl
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+# SSO Admin group, provides ROLE_ADMIN
+dn: cn=admin,ou=groups,dc=qnh,dc=nl
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: admin
+uniqueMember: uid=sso-admin,ou=users,dc=qnh,dc=nl
+
+# User group, provides ROLE_USER
+dn: cn=user,ou=groups,dc=qnh,dc=nl
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: user
+uniqueMember: uid=sso-admin,ou=users,dc=qnh,dc=nl
+
+# User section. All user objects must be created here
+# and made member of user group as well.
+dn: ou=users,dc=qnh,dc=nl
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# SSO admin user
+dn: uid=sso-admin,ou=users,dc=qnh,dc=nl
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Admin
+sn: User
+uid: sso-admin
+userPassword:: e3NoYX1OL29tVXpDdGcrcW9lZSt4NHR0amdJbHM5ams9

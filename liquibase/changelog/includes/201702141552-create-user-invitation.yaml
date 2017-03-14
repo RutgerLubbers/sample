@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 201702141552
+      author: RCL
+      changes:
+        - createTable:
+            tableName: user_invitation
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ui_pk
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ui_pk
+                    nullable: false
+                    foreignKeyName: ui_user_id_fk
+                    references: user(id)
+              - column:
+                    name: created
+                    type: timestamp
+                    constraints:
+                      nullable: false
+              - column:
+                    name: expires
+                    type: timestamp
+

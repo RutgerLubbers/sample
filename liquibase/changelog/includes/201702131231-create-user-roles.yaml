@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 201702131231
+      author: RCL
+      changes:
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ur_pk
+                    nullable: false
+                    foreignKeyName: ur_user_id_fk
+                    references: user(id)
+              - column:
+                  name: role
+                  type: varchar(50)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ur_pk
+                    nullable: false
+        - dropColumn:
+            tableName: user
+            columnName: role

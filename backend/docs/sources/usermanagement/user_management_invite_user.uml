@@ -1,0 +1,232 @@
+@startuml
+
+actor admin as "Admin"
+actor user as "User"
+participant umc as "userManagementController"
+participant ic as "userInvitationController"
+
+participant is as "userInvitationService"
+
+participant us as "userManagementService"
+
+participant ssos as "ssoService"
+
+note over umc, ic
+  Next to these basic controller, there will be specific controllers
+  to create application specific users.
+
+  Note, the notation here is java centric, JSON returned (if any) is
+  not literal, so ""userId"" may be ""user_id"" in JSON.
+endnote
+|||
+admin -> umc : createUser( user )
+
+activate umc
+  umc -> us : storeUser( user )
+  umc --> admin : 200 OK
+deactivate umc
+
+admin -> ic : invite( user )
+activate ic
+  ic -> is : createInvitation( user, ... )
+  note right
+    It is possible to select different
+    invitation templates.
+  endnote
+deactivate ic
+activate is
+  is -[#a0a0a0]->> user : <font color="#a0a0a0">"Invitation e-mail"</font>
+deactivate is
+
+alt New User
+  user -> ic : acceptUserInvitation( userInvitationId )
+  activate ic
+    ic -> is : acceptUserInvitation( userInvitationId )
+
+    activate is
+      is -> is : userInvitation = getUserInvitation( userInvitationId )
+      is -> is : acceptUserInvitation( userInvitation )
+      activate is #fee
+        is -> is : check( userInvitation )
+        activate is #eee
+          is -> us : getUser( userInvitation.userId )
+          activate us
+            us --> is : user
+          deactivate us
+
+          is -> us : doesUserExistInSso( user )
+          activate us
+            us -> ssos : getSubjectIdFor( user )
+            activate ssos
+              ssos -> sso : getSubjectIdFor( user.email )
+              activate sso
+                sso --> ssos : null
+              deactivate sso
+
+              ssos --> us : null
+            deactivate ssos
+            us --> is : false
+          deactivate us
+        deactivate is
+        is --> is : userInvitationResponse
+      deactivate is
+      is --> ic : userInvitationResponse
+    deactivate is
+    ic -[#a0a0a0]->> user : <font color="#a0a0a0">"Must create account" and <user> </font>
+  deactivate ic
+
+  user -> ic : createAccount( userInvitationId, password )
+  activate ic
+    ic -> is : createSsoAccountAndAcceptInvitation( userInvitationId, password )
+    activate is
+      is -> is : userInvitation = getUserInvitation( userInvitation.id )
+      is -> is : createSsoAccountAndAcceptInvitation( userInvitation, password )
+      activate is #ffe
+        is -> is : checkCreateAccount( userInvitation )
+        activate is #eee
+          is -> us : getUser( userInvitation.userId )
+          activate us
+            us --> is : user
+          deactivate us
+
+          is -> us : doesUserExistInSso( user )
+          activate us
+            us -> ssos : getSubjectIdFor( user )
+            activate ssos
+              ssos -> sso : getSubjectIdFor( user.email )
+              activate sso
+                sso --> ssos : null
+              deactivate sso
+
+              ssos --> us : null
+            deactivate ssos
+            us --> is : false
+          deactivate us
+          is --> is : userInvitationResponse
+        deactivate is
+
+
+        |||
+        is -> us : createSsoAccount( user, password )
+        activate us
+          us -> ssos : createAccount( user, password )
+          activate ssos
+            ssos -> sso : createAccount( account, password )
+            activate sso
+            deactivate sso
+            ssos --> us
+          deactivate ssos
+          us --> is
+        deactivate us
+
+        |||
+        is -> is : acceptUserInvitation( userInvitation )
+        activate is #fee
+        is -> is : check( userInvitation )
+        activate is #eee
+          is -> us : getUser( userInvitation.userId )
+          activate us
+            us --> is : user
+          deactivate us
+
+          is -> us : doesUserExistInSso( user )
+          activate us
+            us -> ssos : getSubjectIdFor( user )
+            activate ssos
+              ssos -> sso : getSubjectIdFor( user.email )
+              activate sso
+                sso --> ssos : subjectId
+              deactivate sso
+
+              ssos --> us : subjectId
+            deactivate ssos
+            us --> is : true
+          deactivate us
+        deactivate is
+        is -> us : linkToSsoAccount( user )
+        activate us
+          us -> ssos : getSubjectIdFor( user )
+          activate ssos
+          ssos -> sso : getSubjectIdFor( user.email )
+          activate sso
+          sso --> ssos : subjectId
+          deactivate sso
+
+
+          ssos --> us : subjectId
+          deactivate ssos
+          us -> us : store( user, subjectId )
+          us --> is
+        deactivate us
+
+        is -> is : delete( userInvitation )
+        is --> is : userInvitationResponse
+      deactivate is
+
+
+
+        is --> is : userInvitationResponse
+      deactivate is
+
+      is --> ic : userInvitationResponse
+    deactivate is
+    ic -[#a0a0a0]->> user : <font color="#a0a0a0">"You may now use the site"</font>
+  deactivate ic
+
+else User exists in SSO
+  user -> ic : acceptUserInvitation( userInvitationId )
+  activate ic
+    ic -> is : acceptUserInvitation( userInvitationId )
+
+    activate is
+      is -> is : userInvitation = getUserInvitation( userInvitationId )
+      is -> is : acceptUserInvitation( userInvitation )
+      activate is #fee
+        is -> is : check( userInvitation )
+        activate is #eee
+          is -> us : getUser( userInvitation.userId )
+          activate us
+            us --> is : user
+          deactivate us
+
+          is -> us : doesUserExistInSso( user )
+          activate us
+            us -> ssos : getSubjectIdFor( user )
+            activate ssos
+              ssos -> sso : getSubjectIdFor( user.email )
+              activate sso
+                sso --> ssos : subjectId
+              deactivate sso
+
+              ssos --> us : subjectId
+            deactivate ssos
+            us --> is : true
+          deactivate us
+        deactivate is
+        is -> us : linkToSsoAccount( user )
+        activate us
+          us -> ssos : getSubjectIdFor( user )
+          activate ssos
+          ssos -> sso : getSubjectIdFor( user.email )
+          activate sso
+          sso --> ssos : subjectId
+          deactivate sso
+
+
+          ssos --> us : subjectId
+          deactivate ssos
+          us -> us : store( user, subjectId )
+          us --> is
+        deactivate us
+
+        is -> is : delete( userInvitation )
+        is --> is : userInvitationResponse
+      deactivate is
+      
+      is --> ic : userInvitationResponse
+    deactivate is
+    ic -[#a0a0a0]->> user : <font color="#a0a0a0">"Must create account" and <user> </font>
+  deactivate ic
+
+end
+@enduml

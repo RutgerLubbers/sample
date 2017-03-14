@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  contextPath: /jetse
+
+spring:
+  profiles.active: dev
+
+hawaii:
+  userManagement:
+    userInvitationExpiresInDays: 8
+
+logging.level:
+  org.springframework: INFO
+  org.springframework.web: INFO
+  org.springframework.security: INFO
+  nl.qnh: DEBUG
+  nl.vodafone: DEBUG
+
+---
+
+spring:
+  profiles: dev
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:7432/jetse
+    username: jetse
+    password: jetse
+
