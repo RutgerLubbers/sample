@@ -1,7 +1,7 @@
 # Jetse Java
 
 
-##Project setup
+## Project setup
 The project currently has the following subdirectories:
 - vagrant. The vagrant image that can be used during development. Has software like LDAP, Postgres, Redis, Tomcat and
 Apache. Used during development.
@@ -16,39 +16,43 @@ The artifactory can be found here:
 
 1. Edit `/etc/hosts` add:
 
-
+````
      127.0.0.1 jetse-src jetse-tgt
-     
+````
 
 2. VAGRANT 
 
-
+````
     $ cd /opt/hawaii/workspace/jetse/vagrant
     $ vagrant up
+````
 
 3. BACKEND
 
-
+````
     $ cd /opt/hawaii/workspace/jetse/backend
     $ sh gradlew bootRun
+````
 
 4. LIQUIBASE
 
-
+````
     $ cd /opt/hawaii/workspace/jetse/liquibase
     $ sh gradlew update
+````
 
 5. FRONTEND
 
 Not present.
 
- 
+````
     $ cd /opt/hawaii/workspace/jetse/frontend
      
     (do this regularly)
     $ npm prune && npm install
       
     $ npm start
+````
 
 ## Code Style
 For the backend we use the [Hawaii 2.0 code style formatting](https://github.com/hawaiifw/hawaii-framework/blob/master/src/eclipse/hawaii-framework-java-style.xml).
